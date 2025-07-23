@@ -1,6 +1,5 @@
 'use client';
-import Image from "next/image";
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -14,44 +13,12 @@ interface Booking {
 
 const RESOURCES = ['Dental', 'Emergency Care', 'Medicine', 'Pediatrics', 'Surgery'];
 
-function getStatusTag(start: string, end: string) {
-  const now = new Date();
-  const s = new Date(start);
-  const e = new Date(end);
-  if (now < s) return 'Upcoming';
-  if (now >= s && now <= e) return 'Ongoing';
-  return 'Past';
-}
-
 export default function Home() {
   const [resource, setResource] = useState(RESOURCES[0]);
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
   const [requestedBy, setRequestedBy] = useState('');
   const [error, setError] = useState('');
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [filterResource, setFilterResource] = useState('');
-  const [filterDate, setFilterDate] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  const fetchBookings = async () => {
-    setLoading(true);
-    let url = '/api/bookings';
-    const params = [];
-    if (filterResource) params.push(`resource=${encodeURIComponent(filterResource)}`);
-    if (filterDate) params.push(`date=${filterDate}`);
-    if (params.length) url += '?' + params.join('&');
-    const res = await fetch(url);
-    const data = await res.json();
-    setBookings(data);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchBookings();
-    // eslint-disable-next-line
-  }, [filterResource, filterDate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,58 +53,16 @@ export default function Home() {
       setStart('');
       setEnd('');
       setRequestedBy('');
-      fetchBookings();
       toast.success('Booking successful!');
     }
   };
 
-  const handleDelete = async (id: string) => {
-    setDeletingId(id);
-    await fetch(`/api/bookings?id=${id}`, { method: 'DELETE' });
-    setDeletingId(null);
-    fetchBookings();
-  };
-
-  // Group bookings by resource
-  const grouped = bookings.reduce((acc: Record<string, Booking[]>, b: Booking) => {
-    acc[b.resource] = acc[b.resource] || [];
-    acc[b.resource].push(b);
-    return acc;
-  }, {});
-
-  function getStartOfWeek(date: Date) {
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    d.setDate(d.getDate() - d.getDay()); // sunday is set as the start of the week
-    return d;
-  }
-  function getEndOfWeek(date: Date) {
-    const d = getStartOfWeek(date);
-    d.setDate(d.getDate() + 6);
-    return d;
-  }
-  const now = new Date();
-  const weekStart = getStartOfWeek(now);
-  const weekDays = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(weekStart);
-    d.setDate(weekStart.getDate() + i);
-    return d;
-  });
-  // Bookings for the week
-  const weekBookings = bookings.filter((b: Booking) => {
-    const s = new Date(b.start);
-    return s >= weekStart && s <= getEndOfWeek(now);
-  });
-
   return (
-    // header
     <main className="max-w-5xl mx-auto p-4 flex flex-col gap-8">
       <ToastContainer position="top-center" autoClose={2500} />
       <header className="flex flex-col sm:flex-row items-center justify-between py-6 mb-2 border-b border-green-100">
         <h1 className="text-3xl font-extrabold tracking-tight text-green-900">Book your appointment</h1>
       </header>
-
-      {/* booking form  */}
       <section className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-green-100">
         <h2 className="text-xl font-bold mb-4 text-green-800">Book a Resource</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -167,7 +92,6 @@ export default function Home() {
           </div>
         </form>
       </section>
-
       <footer className="text-center text-gray-600 text-xs mt-8 mb-2">
         &copy; {new Date().getFullYear()} Liberate Labs. All rights reserved.
       </footer>

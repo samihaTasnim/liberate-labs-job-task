@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // bookings store
-let bookings: Booking[] = [];
+const bookings: Booking[] = [];
 
 const RESOURCES = ['Dental', 'Emergency Care', 'Medicine', 'Pediatrics', 'Surgery'];
 const BUFFER_MINUTES = 10;
