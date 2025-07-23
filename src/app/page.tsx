@@ -168,10 +168,6 @@ export default function Home() {
         </form>
       </section>
 
-      {/* filter section */}
-      {/* calendar view */}
-      {/* Remove these sections from the home page. Optionally, add a welcome message or instructions. */}
-
       <footer className="text-center text-gray-600 text-xs mt-8 mb-2">
         &copy; {new Date().getFullYear()} Liberate Labs. All rights reserved.
       </footer>
